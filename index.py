@@ -1,8 +1,9 @@
 import requests
 import json
 from selenium import webdriver
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 import time
 from colorama import Fore, init
@@ -35,13 +36,33 @@ def movies123PokreniFilm(vrsta,broj):
 
     # 1. Podešavanje opcija da browser bude nevidljiv
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Ključna linija za "bez browsera"
-    chrome_options.add_argument("--disable-gpu") 
+    
+    # Putanje (proverili smo da su ove tačne kod tebe)
+    chrome_options.binary_location = "/data/data/com.termux/files/usr/bin/chromium-browser"
+    service_path = "/data/data/com.termux/files/usr/bin/chromedriver"
 
-    # 2. Pokretanje drajvera
-    driver = webdriver.Chrome(options=chrome_options)
+    # OSNOVNA PODEŠAVANJA ZA TERMUX
+    chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    
+    # DODATNA STABILIZACIJA (Da se ne zaglavi)
+    chrome_options.add_argument("--single-process") # Pokreće sve u jednom thread-u
+    chrome_options.add_argument("--disable-software-rasterizer")
+    chrome_options.add_argument("--blink-settings=imagesEnabled=false") # Brže učitavanje bez slika
+    chrome_options.add_argument("user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+
+    service = Service(executable_path=service_path)
 
     try:
+        print("Inicijalizacija drivera...")
+        driver = webdriver.Chrome(service=service, options=chrome_options)
+        
+        # Postavljanje tajmauta - ako sajt ne odgovori za 20s, prekini
+        driver.set_page_load_timeout(20)
+        
+        # Ovde ide tvoja YFlix logika...
         # 3. Otvaranje linka
         driver.get(LinkIzabranogFilma)
 
@@ -91,6 +112,7 @@ def movies123PokreniFilm(vrsta,broj):
         print(f"Pronađeni SRC: {video_izvor}")
         #odavde ide funkcija neka koja salje televizoru pomocu os.system() adb liniju za otvaranje linka
         LinkIdeTvu(video_izvor)
+        driver.quit()
 
     finally:
         driver.quit()
@@ -102,12 +124,33 @@ def YFlixNapuniNizLinkova(NizLinkovaiImena):
     for rijec in pretrazi.split():
         Sredjena = Sredjena + "+" + rijec
     Sredjena = Sredjena[1:]
+
+    
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Ključna linija za "bez browsera"
-    chrome_options.add_argument("--disable-gpu") 
+    
+    # Putanje (proverili smo da su ove tačne kod tebe)
+    chrome_options.binary_location = "/data/data/com.termux/files/usr/bin/chromium-browser"
+    service_path = "/data/data/com.termux/files/usr/bin/chromedriver"
+
+    # OSNOVNA PODEŠAVANJA ZA TERMUX
+    chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    
+    # DODATNA STABILIZACIJA (Da se ne zaglavi)
+    chrome_options.add_argument("--single-process") # Pokreće sve u jednom thread-u
+    chrome_options.add_argument("--disable-software-rasterizer")
+    chrome_options.add_argument("--blink-settings=imagesEnabled=false") # Brže učitavanje bez slika
+    chrome_options.add_argument("user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+    service = Service(executable_path=service_path)
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+        
+    # Postavljanje tajmauta - ako sajt ne odgovori za 20s, prekini
+    driver.set_page_load_timeout(20)
+
     link = "https://yflix.to/browser?keyword="+Sredjena
 
-    driver = webdriver.Chrome(options=chrome_options)
     driver.get(link)
 
     time.sleep(5)
@@ -126,6 +169,7 @@ def YFlixNapuniNizLinkova(NizLinkovaiImena):
             "naslov": str(film['ime']) + " (YFLIX - no ads)",
             "link": film['link']
         })
+    driver.quit()
 
 def PokreniYFlixFilm(broj):
     LinkIzabranogFilma = NizLinkovaiImena[broj]["link"]
@@ -138,12 +182,33 @@ def solarmovieNapuniNizLinkova(NizLinkovaiImena):
     for rijec in pretrazi.split():
         Sredjena = Sredjena + "+" + rijec
     Sredjena = Sredjena[1:]
+
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Ključna linija za "bez browsera"
-    chrome_options.add_argument("--disable-gpu") 
+    
+    # Putanje (proverili smo da su ove tačne kod tebe)
+    chrome_options.binary_location = "/data/data/com.termux/files/usr/bin/chromium-browser"
+    service_path = "/data/data/com.termux/files/usr/bin/chromedriver"
+
+    # OSNOVNA PODEŠAVANJA ZA TERMUX
+    chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    
+    # DODATNA STABILIZACIJA (Da se ne zaglavi)
+    chrome_options.add_argument("--single-process") # Pokreće sve u jednom thread-u
+    chrome_options.add_argument("--disable-software-rasterizer")
+    chrome_options.add_argument("--blink-settings=imagesEnabled=false") # Brže učitavanje bez slika
+    chrome_options.add_argument("user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+    service = Service(executable_path=service_path)
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+        
+    # Postavljanje tajmauta - ako sajt ne odgovori za 20s, prekini
+    driver.set_page_load_timeout(20)
+
+
     link = "https://www3.solarmovie.cr/search/"+Sredjena
 
-    driver = webdriver.Chrome(options=chrome_options)
     driver.get(link)
 
     script = """
